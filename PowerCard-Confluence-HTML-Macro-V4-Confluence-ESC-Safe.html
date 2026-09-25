@@ -1,0 +1,549 @@
+<!--
+PowerCard Reconciliation - Confluence DC HTML Macro V4 - ESC Safe
+Exact UI carried from PowerCard Reconciliation V0.13.
+Paste the complete content into ONE Confluence HTML macro.
+Only change the API parameters below.
+-->
+
+<div id="pc-recon-host"></div>
+
+<script>
+/* ==============================================================
+   POWERCARD CONFLUENCE PARAMETERS - CHANGE ONLY THIS SECTION
+   ============================================================== */
+var POWER_CARD_API_BASE = 'http://YOUR_API_SERVER:8000';
+var POWER_CARD_DEFAULT_ENV = 'PWCORE';
+// No API IP/host is hardcoded elsewhere in this macro.
+/* ============================================================== */
+
+(function(){
+  var host=document.getElementById('pc-recon-host');
+  if(!host) return;
+  var root=host.shadowRoot || host.attachShadow({mode:'open'});
+  root.innerHTML = `
+<style>
+:root{
+  --bg:#eef3f7;--panel:#fff;--ink:#15202b;--muted:#6d7885;--line:#dce5ed;
+  --dib:#006b4f;--dib2:#00906c;--navy:#193b66;--blue:#2f6fdd;--purple:#6d4ed8;
+  --cyan:#149cb5;--amber:#d88a12;--rose:#c74d78;--shadow:0 10px 30px rgba(25,59,102,.08)
+}
+*{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#f5f8fb 0,#edf2f6 100%);color:var(--ink)}
+.container{max-width:1320px;margin:0 auto;padding:24px}.hero{display:flex;justify-content:space-between;align-items:center;gap:28px;margin-bottom:18px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--dib)} h1{font-size:30px;margin:5px 0 4px}h1 span{color:var(--dib2)}.hero p{margin:0;max-width:880px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;white-space:nowrap;padding:8px 13px;border-radius:999px;background:#dff4ec;color:var(--dib);font-size:13px;font-weight:800;border:1px solid #c3e8db}
+.panel,.stats-panel{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:16px;align-items:stretch;margin-bottom:16px}.control-stack{display:grid;gap:14px}.compact-panel,.question-panel{padding:16px 18px}.section-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.section-heading>div{display:flex;align-items:center;gap:10px}.section-heading h2{font-size:18px;margin:0}.step{width:27px;height:27px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--dib),var(--dib2));color:white;font-weight:800}.hint{font-size:12px;color:var(--muted)}
+.env-row{display:flex;gap:10px}.env-btn{border:1px solid #d9e3e9;background:#f4f7f9;color:#334150;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;transition:.18s}.env-btn:hover{transform:translateY(-1px)}.env-btn.active{color:white;background:linear-gradient(135deg,var(--dib),var(--dib2));border-color:transparent;box-shadow:0 6px 16px rgba(0,107,79,.22)}.env-dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:currentColor;margin-right:8px;opacity:.7}
+.question-grid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:9px}.question-tile{position:relative;text-align:left;border:1px solid transparent;border-radius:12px;padding:11px 12px;min-height:78px;cursor:pointer;color:#25313d;transition:.18s;overflow:hidden}.question-tile:hover{transform:translateY(-2px);box-shadow:0 7px 16px rgba(27,46,66,.12)}.question-tile .qno{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;border-radius:7px;background:rgba(255,255,255,.8);font-size:11px;font-weight:900}.question-tile strong{display:block;font-size:13px;line-height:1.2;margin-top:7px}.question-tile small{display:block;font-size:10px;margin-top:5px;opacity:.72}.question-tile:nth-child(1){background:linear-gradient(135deg,#e4f7ee,#d5f1e6)}.question-tile:nth-child(2){background:linear-gradient(135deg,#e6f0ff,#dbe8ff)}.question-tile:nth-child(3){background:linear-gradient(135deg,#eee8ff,#e4dcff)}.question-tile:nth-child(4){background:linear-gradient(135deg,#ddf6f8,#d0eef2)}.question-tile:nth-child(5){background:linear-gradient(135deg,#fff0d7,#ffe5bc)}.question-tile.active{border-color:var(--dib);box-shadow:0 0 0 3px rgba(0,107,79,.14),0 8px 18px rgba(0,107,79,.12)}.question-tile.active:after{content:'✓';position:absolute;right:8px;top:7px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--dib);color:white;font-size:11px;font-weight:900}
+.action-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px}.muted{color:var(--muted)}#questionHelp{font-size:12px;margin:0}.primary-btn,.secondary-btn,.excel-btn{border:0;border-radius:9px;padding:10px 14px;font:inherit;font-weight:800;cursor:pointer;white-space:nowrap}.primary-btn{color:white;background:linear-gradient(135deg,var(--dib),var(--dib2));box-shadow:0 6px 16px rgba(0,107,79,.18)}.primary-btn:disabled{opacity:.55;cursor:wait}.secondary-btn{background:#eef3f6;color:#334150;border:1px solid #d7e1e7}.excel-btn{background:linear-gradient(135deg,#1d7348,#269b60);color:#fff}.excel-btn:disabled{opacity:.5;cursor:not-allowed}
+.stats-panel{padding:13px;display:flex;flex-direction:column;gap:9px;background:linear-gradient(180deg,#173958,#122d47);border-color:#254b6b}.stats-title{color:#d6e7f5;font-size:12px;font-weight:800;letter-spacing:.05em;padding:2px 2px 4px}.stat-card{border-radius:11px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;min-height:54px}.stat-card span{font-size:11px;font-weight:700}.stat-card b{font-size:24px}.stat-v2{background:#e9f5ef;color:#176248}.stat-v3{background:#e7f0ff;color:#275cae}.stat-match{background:#e8f8f4;color:#087b61}.stat-warn{background:#fff0dd;color:#a86500}.stat-info{background:#f0eaff;color:#6541b4}
+.results-panel,.detail-panel,.guidance-panel{padding:18px;margin-bottom:14px}.table-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px}.table-head h2{margin:0 0 3px;font-size:19px}.table-head p{margin:0;font-size:12px}.table-actions{display:flex;gap:8px;align-items:center}.search{width:230px;padding:9px 11px;border:1px solid #d5e0e7;border-radius:9px;outline:none}.search:focus{border-color:#7ab6a3;box-shadow:0 0 0 3px rgba(0,107,79,.08)}
+.table-wrap{overflow:auto;max-height:460px;border:1px solid #e1e8ed;border-radius:10px}table{width:100%;border-collapse:separate;border-spacing:0}th,td{padding:10px 11px;border-bottom:1px solid #e6ecef;text-align:left;font-size:13px;white-space:nowrap}th{position:sticky;top:0;z-index:1;background:#f1f5f7;color:#485563;font-size:11px;text-transform:uppercase;letter-spacing:.03em}tbody tr:hover{background:#f8fbfa}tbody tr:last-child td{border-bottom:0}.detail-panel{padding:0;overflow:hidden}.detail-panel summary{padding:14px 17px;cursor:pointer;font-weight:800;list-style:none}.detail-panel summary::-webkit-details-marker{display:none}.detail-panel[open] summary{border-bottom:1px solid var(--line);background:#f7fafb}.detail-panel .table-wrap{margin:12px 15px 15px}.count-badge{display:inline-flex;margin-left:7px;padding:2px 8px;border-radius:999px;background:#edf2f5;color:#4c5c6a;font-size:11px}
+.hidden{display:none!important}.guidance-panel{border-left:5px solid var(--dib)}.guidance-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.guidance-grid>div{background:#f7faf9;border:1px solid var(--line);border-radius:12px;padding:14px}.guidance-grid h3{margin-top:0}.guidance-grid li{margin-bottom:10px;line-height:1.45}.guidance-note{padding:11px 13px;border-radius:9px;background:#fff5e5;color:#79530b}
+@media(max-width:1050px){.workspace{grid-template-columns:1fr}.stats-panel{display:grid;grid-template-columns:repeat(5,1fr)}.stats-title{grid-column:1/-1}.question-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.container{padding:14px}.hero,.table-head,.action-row{flex-direction:column;align-items:stretch}.question-grid{grid-template-columns:repeat(2,1fr)}.stats-panel{grid-template-columns:1fr 1fr}.stats-title{grid-column:1/-1}.env-row{flex-direction:column}.table-actions{flex-wrap:wrap}.search{width:100%}.guidance-grid{grid-template-columns:1fr}}
+.auto-action-row{align-items:center;min-height:38px}.auto-status{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;background:#edf8f4;color:#17634f;font-size:11px;font-weight:800;white-space:nowrap}.auto-status:before{content:'●';font-size:8px;color:#00a77a}.question-tile.loading{pointer-events:none;opacity:.78}.question-tile.loading:after{content:'';position:absolute;right:9px;top:8px;width:15px;height:15px;border:2px solid rgba(0,107,79,.25);border-top-color:var(--dib);border-radius:50%;animation:qspin .75s linear infinite}.question-tile.active.loading:after{background:transparent;color:transparent}@keyframes qspin{to{transform:rotate(360deg)}}
+
+/* V0.11 database connection modal */
+.modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(11,27,42,.52);backdrop-filter:blur(5px)}
+.modal-card{width:min(610px,96vw);display:grid;grid-template-columns:64px 1fr;gap:18px;background:#fff;border:1px solid #dce5ed;border-radius:20px;box-shadow:0 28px 70px rgba(11,27,42,.28);padding:22px;animation:modalIn .18s ease-out}
+.modal-icon{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#fff0e6,#ffe0db);color:#c33f2f;font-size:28px;font-weight:900;border:1px solid #ffd0c7}
+.modal-kicker{font-size:10px;font-weight:900;letter-spacing:.13em;color:#9b4b3f;margin:2px 0 5px}.modal-content h2{margin:0 0 8px;font-size:22px}.modal-message{margin:0 0 15px;color:#55616e;line-height:1.45}
+.db-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}.db-status-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e0e7ec;border-radius:11px;padding:10px 12px;background:#f8fafb}.db-status-item strong{font-size:12px}.db-status-pill{font-size:10px;font-weight:900;border-radius:999px;padding:4px 8px}.db-status-pill.ok{background:#dff4ec;color:#0c7052}.db-status-pill.fail{background:#ffe7e2;color:#b53d2e}
+.modal-details{margin-top:8px;border:1px solid #e4e9ed;border-radius:10px;background:#fafcfd}.modal-details summary{cursor:pointer;padding:10px 12px;font-size:12px;font-weight:800;color:#566371}.modal-details pre{white-space:pre-wrap;word-break:break-word;margin:0;padding:0 12px 12px;font:11px/1.45 Consolas,monospace;color:#6a3940;max-height:180px;overflow:auto}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:16px}
+.env-btn.checking{pointer-events:none;opacity:.7;position:relative}.env-btn.checking:after{content:'';display:inline-block;width:12px;height:12px;margin-left:8px;border:2px solid rgba(255,255,255,.4);border-top-color:currentColor;border-radius:50%;animation:qspin .7s linear infinite;vertical-align:-2px}.env-btn:not(.active).checking:after{border-color:rgba(0,107,79,.2);border-top-color:var(--dib)}
+@keyframes modalIn{from{transform:translateY(8px) scale(.985);opacity:0}to{transform:none;opacity:1}}
+@media(max-width:600px){.modal-card{grid-template-columns:1fr}.modal-icon{width:48px;height:48px}.db-status-grid{grid-template-columns:1fr}.modal-actions{flex-direction:column-reverse}.modal-actions button{width:100%}}
+
+.status-active{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:#e3f5ee;color:#087552;font-weight:800;font-size:11px;letter-spacing:.1px}
+
+/* Confluence embedding adjustments only; visual design remains V0.13 */
+:host{display:block;width:100%;}
+body{margin:0!important;}
+.container{width:100%;max-width:1320px;}
+</style>
+<main class="container">
+    <header class="hero">
+      <div>
+        <span class="eyebrow">POWERCARD • RECONCILIATION CONSOLE</span>
+        <h1>PowerCard V2 <span>↔</span> V3 Reconciliation</h1>
+        <p>Choose the environment and business question. The application fetches the V2 population, validates it in V3, and reconciles the results.</p>
+      </div>
+      <span id="health" class="pill">Checking API…</span>
+    </header>
+
+    <section class="workspace">
+      <div class="control-stack">
+        <section class="panel compact-panel">
+          <div class="section-heading">
+            <div><span class="step">1</span><h2>Environment</h2></div>
+            <span class="hint">Choose target pair</span>
+          </div>
+          <div class="env-row">
+            <button class="env-btn active" data-env="PWCORE"><span class="env-dot"></span>PWCORE</button>
+            <button class="env-btn" data-env="PCMOCK"><span class="env-dot"></span>PCMOCK</button>
+          </div>
+        </section>
+
+        <section class="panel question-panel">
+          <div class="section-heading">
+            <div><span class="step">2</span><h2>Select Question</h2></div>
+            <span class="hint">Query / guidance</span>
+          </div>
+          <div id="questionTiles" class="question-grid"></div>
+          <div class="action-row auto-action-row">
+            <p id="questionHelp" class="muted">Select a question to fetch and compare automatically.</p>
+            <span id="autoStatus" class="auto-status">Auto fetch enabled</span>
+          </div>
+        </section>
+      </div>
+
+      <aside id="statsPanel" class="stats-panel">
+        <div class="stats-title">Live Result Summary</div>
+        <div class="stat-card stat-v2"><span>V2 fetched</span><b id="v2Count">0</b></div>
+        <div class="stat-card stat-v3"><span>V3 fetched</span><b id="v3Count">0</b></div>
+        <div class="stat-card stat-match"><span>Available in both</span><b id="matchedCount">0</b></div>
+        <div class="stat-card stat-warn"><span>V2 not in V3</span><b id="v2OnlyCount">0</b></div>
+        <div class="stat-card stat-info"><span>V3 not in V2</span><b id="v3OnlyCount">0</b></div>
+      </aside>
+    </section>
+
+    <section id="guidancePanel" class="panel guidance-panel hidden">
+      <h2 id="guidanceTitle">Create New Debit or Credit Card</h2>
+      <div class="guidance-grid">
+        <div><h3>Credit Card</h3><ol id="creditGuidance"></ol></div>
+        <div><h3>Debit Card</h3><ol id="debitGuidance"></ol></div>
+      </div>
+      <p id="guidanceNote" class="guidance-note"></p>
+    </section>
+
+    <div id="comparisonArea">
+      <section class="panel results-panel">
+        <div class="table-head">
+          <div><h2 id="resultTitle">Comparison Result</h2><p id="resultMessage" class="muted"></p></div>
+          <div class="table-actions">
+            <input id="searchBox" class="search" type="search" placeholder="Filter displayed records…" />
+            <button id="copyCardsBtn" class="secondary-btn">Copy Cards</button>
+            <button id="exportExcelBtn" class="excel-btn">Export Excel</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Card Number</th><th>Client / CIF</th><th>V2 Status</th><th>V3 Status</th><th>Type</th><th>Primary Card</th></tr></thead><tbody id="matchedBody"></tbody></table></div>
+      </section>
+
+      <details class="panel detail-panel"><summary>V2 records not available in V3 <span class="count-badge" id="v2OnlyLabel">0</span></summary><div class="table-wrap"><table><thead><tr><th>Card Number</th><th>Client / CIF</th><th>Status</th><th>Type</th><th>Primary Card</th></tr></thead><tbody id="v2OnlyBody"></tbody></table></div></details>
+      <details class="panel detail-panel"><summary>V3 records not available in V2 <span class="count-badge" id="v3OnlyLabel">0</span></summary><div class="table-wrap"><table><thead><tr><th>Card Number</th><th>Client / CIF</th><th>Status</th><th>Type</th><th>Primary Card</th></tr></thead><tbody id="v3OnlyBody"></tbody></table></div></details>
+    </div>
+  </main>
+
+  <div id="dbErrorModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="dbErrorTitle">
+    <div class="modal-card">
+      <div class="modal-icon">!</div>
+      <div class="modal-content">
+        <div class="modal-kicker">DATABASE CONNECTION</div>
+        <h2 id="dbErrorTitle">Unable to connect</h2>
+        <p id="dbErrorMessage" class="modal-message"></p>
+        <div id="dbStatusGrid" class="db-status-grid"></div>
+        <details id="dbErrorDetails" class="modal-details hidden">
+          <summary>Technical details</summary>
+          <pre id="dbErrorTechnical"></pre>
+        </details>
+        <div class="modal-actions">
+          <button id="dbErrorClose" class="secondary-btn">Close</button>
+          <button id="dbErrorRetry" class="primary-btn">Retry Connection</button>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+  // Allow default environment to be controlled from the parameter block.
+  let environment = POWER_CARD_DEFAULT_ENV || 'PWCORE';
+
+let selectedScenario = null;
+let selectedScenarioMeta = null;
+let lastResult = null;
+let filteredMatchedRows = [];
+let activeRequest = null;
+let requestSequence = 0;
+let pendingEnvironment = null;
+let environmentCheckInProgress = false;
+
+const $ = id => root.getElementById(id);
+const apiUrl = path => `${POWER_CARD_API_BASE.replace(/\/$/, '')}${path}`;
+
+async function json(url, options={}) {
+  const r = await fetch(apiUrl(url), options);
+  let data = {};
+  try { data = await r.json(); } catch { data = {}; }
+  if (!r.ok) throw new Error(data.detail || `Request failed (${r.status})`);
+  return data;
+}
+
+function friendlyOracleError(text='') {
+  const t=String(text || '');
+  if (/ORA-01017|invalid username\/password|logon denied/i.test(t)) return 'Database login failed. Please check the configured username and password.';
+  if (/ORA-12154|could not resolve the connect identifier/i.test(t)) return 'Oracle TNS alias could not be resolved. Check TNS_ADMIN and tnsnames.ora.';
+  if (/ORA-12514|listener does not currently know of service/i.test(t)) return 'Oracle listener was reached, but the configured service name is not registered.';
+  if (/ORA-12541|no listener/i.test(t)) return 'Oracle listener is not reachable on the configured host and port.';
+  if (/ORA-12170|timeout|timed out/i.test(t)) return 'Database connection timed out. Check network/VPN access and Oracle host/port connectivity.';
+  if (/DPI-1047|cannot locate a 64-bit Oracle Client|Oracle Client library/i.test(t)) return 'Oracle Client could not be loaded. Check ORACLE_CLIENT_LIB_DIR and 64-bit client compatibility.';
+  if (/DPY-3010|not supported by python-oracledb in thin mode/i.test(t)) return 'This Oracle database requires Thick mode. Set ORACLE_MODE=thick and configure Oracle Instant Client.';
+  return 'The database connection could not be established. Review the technical details and configuration.';
+}
+
+function showDbErrorModal(environmentName, health, fallbackError='') {
+  const v2Ok=health && health.v2 === true;
+  const v3Ok=health && health.v3 === true;
+  const errors=[health?.v2Error, health?.v3Error, fallbackError].filter(Boolean);
+  $('dbErrorTitle').textContent=`${environmentName} connection failed`;
+  $('dbErrorMessage').textContent=friendlyOracleError(errors.join(' | '));
+  $('dbStatusGrid').innerHTML=`
+    <div class="db-status-item"><strong>V2 Database</strong><span class="db-status-pill ${v2Ok?'ok':'fail'}">${v2Ok?'Connected':'Failed'}</span></div>
+    <div class="db-status-item"><strong>V3 Database</strong><span class="db-status-pill ${v3Ok?'ok':'fail'}">${v3Ok?'Connected':'Failed'}</span></div>`;
+  const tech=[];
+  if(health?.v2Error) tech.push(`V2: ${health.v2Error}`);
+  if(health?.v3Error) tech.push(`V3: ${health.v3Error}`);
+  if(fallbackError && !tech.length) tech.push(fallbackError);
+  $('dbErrorTechnical').textContent=tech.join('\n\n');
+  $('dbErrorDetails').classList.toggle('hidden',tech.length===0);
+  $('dbErrorModal').classList.remove('hidden');
+}
+
+function closeDbErrorModal(){ $('dbErrorModal').classList.add('hidden'); }
+
+async function validateEnvironment(env, button) {
+  if (environmentCheckInProgress) return false;
+  environmentCheckInProgress=true;
+  pendingEnvironment=env;
+  if(button) button.classList.add('checking');
+  $('autoStatus').textContent=`Checking ${env} database connections…`;
+  try{
+    const h=await json('/api/v1/health');
+    if(h.dataSource !== 'oracle') return true;
+    const db=await json(`/api/v1/oracle-health/${encodeURIComponent(env)}`);
+    if(db.v2 === true && db.v3 === true) return true;
+    showDbErrorModal(env,db);
+    return false;
+  }catch(e){
+    showDbErrorModal(env,null,e.message);
+    return false;
+  }finally{
+    environmentCheckInProgress=false;
+    if(button) button.classList.remove('checking');
+  }
+}
+
+async function init() {
+  try {
+    const h = await json('/api/v1/health');
+    $('health').textContent = `API ${h.status} • v${h.version}`;
+    const s = await json('/api/v1/scenarios');
+    renderQuestions(s.scenarios);
+  } catch(e) {
+    $('health').textContent = 'API unavailable';
+    $('autoStatus').textContent = 'API unavailable';
+  }
+  $('exportExcelBtn').disabled = true;
+  $('copyCardsBtn').disabled = true;
+}
+
+function renderQuestions(items) {
+  var host = $('questionTiles');
+  host.innerHTML = '';
+  items.forEach(function(q, i) {
+    var b = document.createElement('button');
+    b.className = 'question-tile';
+    b.setAttribute('data-id', q.id || '');
+
+    var qno = document.createElement('span');
+    qno.className = 'qno';
+    qno.textContent = String(i + 1);
+
+    var title = document.createElement('strong');
+    title.textContent = q.label || '';
+
+    var meta = document.createElement('small');
+    meta.textContent = q.mode === 'guidance' ? 'Guidance' : 'Query + Compare';
+
+    b.appendChild(qno);
+    b.appendChild(title);
+    b.appendChild(meta);
+    b.onclick = function(){ selectQuestion(q, b, true); };
+    host.appendChild(b);
+  });
+}
+
+async function selectQuestion(q, button, shouldRun=true) {
+  root.querySelectorAll('.question-tile').forEach(x=>x.classList.remove('active','loading'));
+  button.classList.add('active');
+  selectedScenario=q.id;
+  selectedScenarioMeta=q;
+  $('questionHelp').textContent=q.description;
+  $('guidancePanel').classList.add('hidden');
+  if (q.mode !== 'guidance') $('comparisonArea').classList.remove('hidden');
+  if (shouldRun) await run(button);
+}
+
+root.querySelectorAll('.env-btn').forEach(b=>b.onclick=async()=>{
+  const target=b.dataset.env;
+  if (environment === target && b.classList.contains('active')) {
+    const ok=await validateEnvironment(target,b);
+    $('autoStatus').textContent=ok ? `${target} connections verified` : `${target} connection failed`;
+    return;
+  }
+
+  const ok=await validateEnvironment(target,b);
+  if(!ok){
+    $('autoStatus').textContent=`${target} not selected — connection failed`;
+    return;
+  }
+
+  root.querySelectorAll('.env-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  environment=target;
+  $('autoStatus').textContent=`${target} connected`;
+  if (selectedScenario) {
+    const tile=root.querySelector(`.question-tile[data-id="${selectedScenario}"]`);
+    await run(tile);
+  } else {
+    $('autoStatus').textContent=`${target} connected — select a question`;
+  }
+});
+
+async function run(tile) {
+  if(!selectedScenario) return;
+  const guidanceMode = selectedScenarioMeta && selectedScenarioMeta.mode === 'guidance';
+  const seq=++requestSequence;
+
+  if (activeRequest) activeRequest.abort();
+  activeRequest = new AbortController();
+  root.querySelectorAll('.question-tile').forEach(x=>x.classList.remove('loading'));
+  if (tile) tile.classList.add('loading');
+
+  $('exportExcelBtn').disabled=true;
+  $('copyCardsBtn').disabled=true;
+  $('autoStatus').textContent = guidanceMode ? 'Loading guidance…' : `Fetching ${selectedScenarioMeta.label}…`;
+  $('resultMessage').textContent = guidanceMode ? '' : 'Fetching V2 data and reconciling against V3…';
+
+  try {
+    const data=await json('/api/v1/reconcile',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({environment,scenario:selectedScenario}),
+      signal:activeRequest.signal
+    });
+    if (seq !== requestSequence) return;
+    lastResult=data;
+    renderResult(data);
+    $('autoStatus').textContent = guidanceMode ? 'Guidance loaded' : 'Result refreshed automatically';
+  } catch(e) {
+    if (e.name === 'AbortError') return;
+    if (seq !== requestSequence) return;
+    lastResult=null;
+    filteredMatchedRows=[];
+    $('resultMessage').textContent=e.message;
+    $('autoStatus').textContent='Fetch failed — select the question to retry';
+    if (/ORA-|DPY-|DPI-|database|connect|login|listener|TNS/i.test(e.message)) {
+      showDbErrorModal(environment,null,e.message);
+    }
+  } finally {
+    if (seq === requestSequence) {
+      if (tile) tile.classList.remove('loading');
+      activeRequest=null;
+      $('exportExcelBtn').disabled=!lastResult || lastResult.mode === 'guidance' || filteredMatchedRows.length===0;
+      $('copyCardsBtn').disabled=!lastResult || lastResult.mode === 'guidance' || filteredMatchedRows.length===0;
+    }
+  }
+}
+
+function renderResult(d) {
+  if (d.mode === 'guidance') {
+    $('comparisonArea').classList.add('hidden');
+    $('guidancePanel').classList.remove('hidden');
+    $('guidanceTitle').textContent=d.guidance.title;
+    renderSafeList('creditGuidance', d.guidance.credit);
+    renderSafeList('debitGuidance', d.guidance.debit);
+    $('guidanceNote').textContent=d.guidance.note;
+    resetStats();
+    filteredMatchedRows=[];
+    return;
+  }
+  $('guidancePanel').classList.add('hidden');
+  $('comparisonArea').classList.remove('hidden');
+  const s=d.summary;
+  ['v2Count','v3Count','matchedCount','v2OnlyCount','v3OnlyCount'].forEach(k=>$(k).textContent=s[k]);
+  $('v2OnlyLabel').textContent=s.v2OnlyCount;
+  $('v3OnlyLabel').textContent=s.v3OnlyCount;
+  $('resultTitle').textContent=`${d.scenario.label} — ${d.environment}`;
+  $('resultMessage').textContent='V2 population fetched, V3 lookup completed, and card numbers reconciled.';
+  fillMatched(d.matched);
+  fillSingle('v2OnlyBody',d.v2Only);
+  fillSingle('v3OnlyBody',d.v3Only);
+  filteredMatchedRows = [...d.matched];
+  $('searchBox').value='';
+  $('exportExcelBtn').disabled=filteredMatchedRows.length===0;
+  $('copyCardsBtn').disabled=filteredMatchedRows.length===0;
+}
+
+function resetStats(){
+  ['v2Count','v3Count','matchedCount','v2OnlyCount','v3OnlyCount'].forEach(k=>$(k).textContent='0');
+  $('v2OnlyLabel').textContent='0';
+  $('v3OnlyLabel').textContent='0';
+}
+
+/*
+ * Confluence-safe HTML escaping.
+ * Deliberately uses sequential replacements instead of an object/callback map,
+ * optional chaining, or nullish coalescing. This mirrors the ESC-safe pattern
+ * used in the CET Confluence dashboard and prevents API/database values from
+ * being interpreted as markup inside the HTML macro.
+ */
+function esc(v) {
+  if (v === null || typeof v === 'undefined') return '';
+  return String(v)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function statusLabel(v) {
+  var raw = (v === null || typeof v === 'undefined') ? '' : String(v).replace(/^\s+|\s+$/g, '').toUpperCase();
+  if (raw === 'N') return 'Active';
+  return raw || '';
+}
+
+function renderSafeList(id, items) {
+  var el = $(id);
+  el.innerHTML = '';
+  (items || []).forEach(function(item){
+    var li = document.createElement('li');
+    li.textContent = (item === null || typeof item === 'undefined') ? '' : String(item);
+    el.appendChild(li);
+  });
+}
+
+function fillMatched(rows) {
+  var html = (rows || []).map(function(r){
+    return '<tr>' +
+      '<td>' + esc(r.cardNumber) + '</td>' +
+      '<td>' + esc(r.clientCode) + '</td>' +
+      '<td><span class="status-active">' + esc(statusLabel(r.v2Status)) + '</span></td>' +
+      '<td><span class="status-active">' + esc(statusLabel(r.v3Status)) + '</span></td>' +
+      '<td>' + esc(r.productType) + '</td>' +
+      '<td>' + esc(r.primaryCard) + '</td>' +
+      '</tr>';
+  }).join('');
+  $('matchedBody').innerHTML = html || '<tr><td colspan="6">No matched records</td></tr>';
+}
+
+function fillSingle(id, rows) {
+  var html = (rows || []).map(function(r){
+    return '<tr>' +
+      '<td>' + esc(r.cardNumber) + '</td>' +
+      '<td>' + esc(r.clientCode) + '</td>' +
+      '<td>' + esc(statusLabel(r.status)) + '</td>' +
+      '<td>' + esc(r.productType) + '</td>' +
+      '<td>' + esc(r.primaryCard) + '</td>' +
+      '</tr>';
+  }).join('');
+  $(id).innerHTML = html || '<tr><td colspan="5">No records</td></tr>';
+}
+
+function applyMatchedFilter() {
+  if(!lastResult || lastResult.mode === 'guidance') { filteredMatchedRows=[]; return; }
+  const q=$('searchBox').value.trim().toLowerCase();
+  filteredMatchedRows = lastResult.matched.filter(r => {
+    const hay=[r.cardNumber,r.clientCode,r.v2Status,r.v3Status,statusLabel(r.v2Status),statusLabel(r.v3Status),r.productType,r.primaryCard]
+      .map(function(v){ return (v === null || typeof v === 'undefined') ? '' : String(v).toLowerCase(); }).join(' ');
+    return !q || hay.includes(q);
+  });
+  fillMatched(filteredMatchedRows);
+  $('copyCardsBtn').disabled=filteredMatchedRows.length===0;
+  $('exportExcelBtn').disabled=filteredMatchedRows.length===0;
+  $('resultMessage').textContent = q
+    ? `${filteredMatchedRows.length} of ${lastResult.matched.length} matched records shown after filter.`
+    : 'V2 population fetched, V3 lookup completed, and card numbers reconciled.';
+}
+
+$('copyCardsBtn').onclick=async()=>{
+  if(!lastResult || lastResult.mode === 'guidance' || !filteredMatchedRows.length) return;
+  const cards=[...new Set(filteredMatchedRows.map(x=>x.cardNumber).filter(Boolean))];
+  const copyText=cards.join('\n');
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(copyText);
+    } else {
+      const ta=document.createElement('textarea');
+      ta.value=copyText; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    }
+  } catch(e) {
+    const ta=document.createElement('textarea');
+    ta.value=copyText; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  $('copyCardsBtn').textContent=`Copied ${cards.length}`;
+  setTimeout(()=>$('copyCardsBtn').textContent='Copy Cards',1200);
+};
+
+$('exportExcelBtn').onclick=async()=>{
+  if(!lastResult || lastResult.mode==='guidance' || !filteredMatchedRows.length) return;
+  const btn=$('exportExcelBtn');
+  const old=btn.textContent;
+  btn.disabled=true;
+  btn.textContent='Preparing…';
+  try{
+    const r=await fetch(apiUrl('/api/v1/export-excel'),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        environment:lastResult.environment,
+        scenario:lastResult.scenario.id,
+        records:filteredMatchedRows,
+        filterText:$('searchBox').value.trim()
+      })
+    });
+    if(!r.ok){let d={};try{d=await r.json()}catch{};throw new Error(d.detail||'Excel export failed');}
+    const blob=await r.blob();
+    const cd=r.headers.get('content-disposition')||'';
+    const m=cd.match(/filename="?([^";]+)"?/i);
+    const filename=m?m[1]:`PowerCard_${lastResult.environment}_${lastResult.scenario.id}_matched.xlsx`;
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){alert(e.message);}finally{btn.disabled=filteredMatchedRows.length===0;btn.textContent=old;}
+};
+
+$('searchBox').oninput=applyMatchedFilter;
+$('dbErrorClose').onclick=closeDbErrorModal;
+$('dbErrorModal').onclick=e=>{ if(e.target === $('dbErrorModal')) closeDbErrorModal(); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDbErrorModal(); });
+$('dbErrorRetry').onclick=async()=>{
+  closeDbErrorModal();
+  const env=pendingEnvironment || environment;
+  const btn=root.querySelector(`.env-btn[data-env="${env}"]`);
+  const ok=await validateEnvironment(env,btn);
+  if(ok){
+    root.querySelectorAll('.env-btn').forEach(x=>x.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    environment=env;
+    $('autoStatus').textContent=`${env} connected`;
+    if(selectedScenario){
+      const tile=root.querySelector(`.question-tile[data-id="${selectedScenario}"]`);
+      await run(tile);
+    }
+  } else {
+    $('autoStatus').textContent=`${env} connection failed`;
+  }
+};
+init();
+
+})();
+</script>
