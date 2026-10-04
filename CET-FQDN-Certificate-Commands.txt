@@ -1,0 +1,73 @@
+CET GAMIFICATION - FQDN HTTPS CERTIFICATE FIX
+================================================
+
+Why the current FQDN certificate fails
+---------------------------------------
+The certificate details shown for CETMomentum-FQDN list Key Usage as:
+  Key Encipherment, Data Encipherment
+
+Digital Signature is missing. This is consistent with the browser error
+ERR_SSL_KEY_USAGE_INCOMPATIBLE. Reissue the certificate; do not try to edit
+the existing certificate's Key Usage.
+
+Preferred option for a managed company network
+----------------------------------------------
+Ask the internal Certificate Authority team to issue a Web Server / Server
+Authentication certificate with:
+  DNS SAN: dxb01-vwu-afna1.dibuat.ae
+  Key Usage: Digital Signature and Key Encipherment (RSA)
+  Enhanced Key Usage: Server Authentication
+  Private key: installed on the IIS server in Local Computer\Personal
+
+Self-signed test certificate (run on the IIS server)
+-----------------------------------------------------
+Open PowerShell as Administrator on the IIS server and run:
+
+$dnsName = "dxb01-vwu-afna1.dibuat.ae"
+$cert = New-SelfSignedCertificate `
+  -DnsName $dnsName `
+  -CertStoreLocation "Cert:\LocalMachine\My" `
+  -Type SSLServerAuthentication `
+  -KeyAlgorithm RSA `
+  -KeyLength 2048 `
+  -KeyUsage DigitalSignature,KeyEncipherment `
+  -HashAlgorithm SHA256 `
+  -FriendlyName "CETMomentum-FQDN-HTTPS"
+
+Display the new certificate information:
+
+$cert | Format-List Subject,Thumbprint,NotAfter,HasPrivateKey
+$cert.Extensions | ForEach-Object {
+  "{0}: {1}" -f $_.Oid.FriendlyName, $_.Format($true)
+}
+
+Export the public certificate for client trust (do not distribute a PFX/private key):
+
+Export-Certificate `
+  -Cert $cert `
+  -FilePath "$env:USERPROFILE\Desktop\CETMomentum-FQDN.cer"
+
+IIS binding steps
+-----------------
+1. In IIS Manager, select the site hosting CETGamification (Default Web Site
+   in the supplied screenshot) and open Bindings.
+2. Edit the HTTPS binding on port 443 and select CETMomentum-FQDN-HTTPS.
+3. Keep the working IP certificate until the FQDN test succeeds.
+4. Browse to:
+   https://dxb01-vwu-afna1.dibuat.ae/CETGamification/
+
+Trusting a self-signed certificate on client PCs
+------------------------------------------------
+A self-signed certificate will still produce a trust warning until the
+certificate is trusted by each client PC. For a managed company environment,
+distribute trust using the company-approved IT process/group policy. Do not
+send or install the server's PFX/private key on client PCs. A certificate
+issued by the organization's CA is preferable for multiple users.
+
+Important
+---------
+- The certificate is for the server FQDN, not for the IIS user or app-pool user.
+- The SAN must match the exact hostname in the browser URL.
+- Key Usage and Enhanced Key Usage are separate: verify Key Usage includes
+  Digital Signature and Key Encipherment, and EKU includes Server Authentication.
+- Do not disable TLS/certificate validation in the browser.
