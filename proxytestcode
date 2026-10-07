@@ -1,1 +1,2 @@
 curl.exe --proxy "http://PROXY_HOST:PORT" --proxy-anyauth --proxy-user "dib\YOUR_USERNAME" --noproxy "" --connect-timeout 15 --max-time 30 --include "https://connectjira.dib.ae/planner/rest/api/2/myself"
+curl.exe --proxy "http://10.246.1.35:8080" --proxy-ntlm --proxy-user "dib\muhammad.yahya" --noproxy "" --connect-timeout 30 --max-time 90 --include "https://connectjira.dib.ae/planner/rest/api/2/myself"
