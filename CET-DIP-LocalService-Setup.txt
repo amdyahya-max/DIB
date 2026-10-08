@@ -1,0 +1,121 @@
+CET DIP - Direct PowerShell commands for E:\DIP
+================================================
+Run Windows PowerShell AS ADMINISTRATOR.
+No path variables are used in these commands.
+NSSM location matches your screenshot:
+E:\PowerCard\nssm-2.24\win64\nssm.exe
+
+Before starting: stop the manually launched DIP Node process on port 4000.
+These commands assume node.exe is E:\DIP\node\node.exe and server.js is
+E:\DIP\server.js. Check both files exist before installing the service.
+Keep nssm.exe at its current location after installing the service.
+
+1. Open the application folder and create writable folders
+----------------------------------------------------------
+Set-Location 'E:\DIP'
+Test-Path '.\node\node.exe'
+Test-Path '.\server.js'
+Test-Path 'E:\PowerCard\nssm-2.24\win64\nssm.exe'
+
+# All three checks above should return True.
+New-Item -ItemType Directory -Force .\data, .\logs, .\storage | Out-Null
+
+The current DIP V3 package uses .\data\users.json, not .\storage.
+Creating .\storage does not change the application's configured data location.
+
+2. Grant LocalService permissions, as in CETMomentum
+----------------------------------------------------
+# Application files: Read and Execute.
+icacls 'E:\DIP' /grant '*S-1-5-19:(OI)(CI)(RX)' /T
+
+# Writable folders: Modify (read, write, rename and delete).
+icacls '.\data' /grant '*S-1-5-19:(OI)(CI)(M)' /T
+icacls '.\logs' /grant '*S-1-5-19:(OI)(CI)(M)' /T
+icacls '.\storage' /grant '*S-1-5-19:(OI)(CI)(M)' /T
+
+S-1-5-19 is NT AUTHORITY\LocalService. No domain account or password is needed.
+Check each command reports no failed files. These grants retain existing ACLs.
+LocalService is shared by all services running under that built-in identity.
+
+3. IIS permissions (only if the pool uses ApplicationPoolIdentity)
+-----------------------------------------------------------------
+# Replace DIP-Pool below with the actual, already-created IIS pool name.
+icacls 'E:\DIP' /grant 'IIS AppPool\DIP-Pool:(OI)(CI)(RX)' /T
+
+If IIS itself is configured to run as LocalService, step 2 already grants
+that account access. Skip the pool-specific grant in that case.
+For the reverse proxy, IIS needs Read and Execute; Node writes data/logs.
+Use Anonymous Authentication enabled and Windows Authentication disabled
+for the DIP V3 application login.
+
+4. Install NSSM service - FIRST INSTALL ONLY
+--------------------------------------------
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' install CET-DIP 'E:\DIP\node\node.exe' server.js
+
+If CET-DIP already exists, SKIP install and stop it before step 5:
+Stop-Service -Name CET-DIP
+
+5. Configure the service
+-------------------------
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP Application 'E:\DIP\node\node.exe'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppDirectory 'E:\DIP'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppParameters server.js
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP DisplayName 'CET Demand Intake Portal'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP Description 'CET demand intake portal and Confluence bridge'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP Start SERVICE_AUTO_START
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP ObjectName 'NT AUTHORITY\LocalService'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppStdout 'E:\DIP\logs\portal.out.log'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppStderr 'E:\DIP\logs\portal.err.log'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppRotateFiles 1
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppRotateBytes 10485760
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppStopMethodSkip 0
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppStopMethodConsole 15000
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppExit Default Restart
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppThrottle 1500
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' set CET-DIP AppRestartDelay 10000
+
+Check every NSSM command succeeds before starting.
+Log rotation above occurs on service restart, matching CETMomentum.
+This configures CET-DIP only, not CETMomentum or PowerCard services.
+
+6. Start and verify
+--------------------
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' start CET-DIP
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' status CET-DIP
+
+Get-CimInstance Win32_Service -Filter "Name='CET-DIP'" |
+    Select-Object Name, StartName, State, PathName
+
+Test-NetConnection -ComputerName 127.0.0.1 -Port 4000
+Get-Content '.\logs\portal.out.log' -Tail 30
+Get-Content '.\logs\portal.err.log' -Tail 30
+
+Expected: State Running, StartName NT AUTHORITY\LocalService,
+TcpTestSucceeded True. Running alone does not prove Node is healthy.
+
+Open through IIS:
+https://dxb01-vwu-afna1.dibuat.ae/DIP/
+
+Keep Node bound to 127.0.0.1:4000; IIS provides external HTTPS access.
+
+7. Portal account maintenance
+------------------------------
+Set-Location 'E:\DIP'
+& '.\node\node.exe' '.\manage-users.js' list
+
+Run user-management commands in Administrator PowerShell using the V3
+README syntax. Your interactive account runs this command, not LocalService.
+LocalService folder permissions do not grant your own account write access.
+
+Troubleshooting commands
+-------------------------
+icacls '.\data'
+icacls '.\logs'
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' get CET-DIP ObjectName
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' get CET-DIP Application
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' get CET-DIP AppDirectory
+& 'E:\PowerCard\nssm-2.24\win64\nssm.exe' get CET-DIP AppParameters
+
+For EADDRINUSE, stop only the manually launched DIP process on port 4000.
+Commands have not been executed on your Windows server.
+Reference: https://nssm.cc/usage
