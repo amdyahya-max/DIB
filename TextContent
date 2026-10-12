@@ -11,3 +11,6 @@ Invoke-WebRequest -UseDefaultCredentials -UseBasicParsing -Uri "https://connectm
 
 [regex]::Matches($MagnitudeHtml, '(?is)<script\b[^>]*\bsrc="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
 [regex]::Matches($MagnitudeHtml, '(?is)<script\b[^>]*>(.*?)</script>') | ForEach-Object { [regex]::Matches($_.Groups[1].Value, '(?is).{0,120}(?:txtdate|hdn_Sec_TimesheetDate|GetUrlKeyValue|URLSearchParams|location\.search|querystring).{0,220}') | ForEach-Object { $_.Value } }
+
+[regex]::Matches((Get-Content -LiteralPath "$env:TEMP\CET-Magnitude-Inspect\magnitude.html" -Raw), '(?is)<script\b[^>]*>(.*?)</script>') | ForEach-Object { $_.Groups[1].Value } | Where-Object { $_ -match 'txtdate|fetchDatesFromSharePointList|GetUrlKeyValue|URLSearchParams|location\.search|querystring' } | Set-Content -LiteralPath "$env:TEMP\CET-Magnitude-Inspect\Magnitude-Date-Scripts.txt" -Encoding UTF8
+notepad.exe "$env:TEMP\CET-Magnitude-Inspect\Magnitude-Date-Scripts.txt"
