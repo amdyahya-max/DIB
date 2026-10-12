@@ -1,0 +1,6 @@
+$MagnitudeFolder = Join-Path $env:TEMP "CET-Magnitude-Inspect"
+
+
+New-Item -ItemType Directory -Force -Path $MagnitudeFolder | Out-Null
+curl.exe --negotiate --user ":" --location --connect-timeout 20 --max-time 60 --output "$MagnitudeFolder\magnitude.html" --write-out "HTTP %{http_code}" "https://connectmagnitude.dib.ae/sites/IT/Timesheet/Pages/Home.aspx"
+$MagnitudeHtml = Get-Content -LiteralPath "$MagnitudeFolder\magnitude.html" -Raw
