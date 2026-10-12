@@ -8,3 +8,6 @@ $MagnitudeHtml = Get-Content -LiteralPath "$MagnitudeFolder\magnitude.html" -Raw
 
 
 Invoke-WebRequest -UseDefaultCredentials -UseBasicParsing -Uri "https://connectmagnitude.dib.ae/sites/IT/Timesheet/Pages/Home.aspx" -OutFile "$MagnitudeFolder\magnitude.html"
+
+[regex]::Matches($MagnitudeHtml, '(?is)<script\b[^>]*\bsrc="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
+[regex]::Matches($MagnitudeHtml, '(?is)<script\b[^>]*>(.*?)</script>') | ForEach-Object { [regex]::Matches($_.Groups[1].Value, '(?is).{0,120}(?:txtdate|hdn_Sec_TimesheetDate|GetUrlKeyValue|URLSearchParams|location\.search|querystring).{0,220}') | ForEach-Object { $_.Value } }
