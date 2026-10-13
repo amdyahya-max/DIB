@@ -1,20 +1,40 @@
-Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -ErrorAction Stop | Format-List Name,CommandType,Definition
-Get-ExecutionPolicy -List
-Get-Item -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" | Format-List FullName,Length,PSIsContainer,Attributes
-Get-Content -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -TotalCount 3 -ErrorAction Stop
-$ExecutionContext.SessionState.LanguageMode
-Trace-Command -Name CommandDiscovery -Expression { Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -CommandType ExternalScript -ErrorAction Continue | Format-List Name,CommandType,Definition } -FilePath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
-
-*********
-PS C:\Users\muhammad.yahya> Trace-Command -Name CommandDiscovery -Expression { Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -CommandType ExternalScript -ErrorAction Continue | Format-List Name,CommandType,Definition } -FilePath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
-Get-Command : The term 'C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1' is not recognized as
-the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was
-included, verify that the path is correct and try again.
-At line:1 char:52
-+ ... xpression { Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Upda ...
-+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : ObjectNotFound: (C:\Users\muhamm...date-1.2.13.ps1:String) [Get-Command], CommandNotFoun
-   dException
-    + FullyQualifiedErrorId : CommandNotFoundException,Microsoft.PowerShell.Commands.GetCommandCommand
-
-Get-Content -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
+PS C:\Users\muhammad.yahya> Get-Content -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
+CommandDiscovery Information: 0 : Looking up command: Get-Command
+CommandDiscovery Information: 0 : Cmdlet found: Get-Command  Microsoft.PowerShell.Commands.GetCommandCommand
+CommandDiscovery Information: 0 : Looking up command: Format-List
+CommandDiscovery Information: 0 : Cmdlet found: Format-List  Microsoft.PowerShell.Commands.FormatListCommand
+CommandDiscovery Information: 0 : The name appears to be a qualified path: C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Trying to resolve the path as an PSPath
+CommandDiscovery Information: 0 : Path resolved to: C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : The path is rooted, so only doing the lookup in the specified directory: C:\Users\muhammad.yahya\AppData\Local\Temp
+CommandDiscovery Information: 0 : Looking for CET-Helper-Update-1.2.13.ps1.* in C:\Users\muhammad.yahya\AppData\Local\Temp
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Looking up command: C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : The name appears to be a qualified path: C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Trying to resolve the path as an PSPath
+CommandDiscovery Information: 0 : Path resolved to: C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : The path is rooted, so only doing the lookup in the specified directory: C:\Users\muhammad.yahya\AppData\Local\Temp
+CommandDiscovery Information: 0 : Looking for CET-Helper-Update-1.2.13.ps1.* in C:\Users\muhammad.yahya\AppData\Local\Temp
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : ERROR: 'C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1' is not recognized as a cmdlet, function, operable program or script file.
+CommandDiscovery Information: 0 : The name appears to be a qualified path: C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Trying to resolve the path as an PSPath
+CommandDiscovery Information: 0 : Path resolved to: C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : The path is rooted, so only doing the lookup in the specified directory: C:\Users\muhammad.yahya\AppData\Local\Temp
+CommandDiscovery Information: 0 : Looking for CET-Helper-Update-1.2.13.ps1.* in C:\Users\muhammad.yahya\AppData\Local\Temp
+CommandDiscovery Information: 0 : Command Found: path (C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1) is a script with name: CET-Helper-Update-1.2.13.ps1
+CommandDiscovery Information: 0 : Looking up command: Set-StrictMode
+CommandDiscovery Information: 0 : Cmdlet found: Set-StrictMode  Microsoft.PowerShell.Commands.SetStrictModeCommand
+CommandDiscovery Information: 0 : Looking up command: Set-StrictMode
+CommandDiscovery Information: 0 : Cmdlet found: Set-StrictMode  Microsoft.PowerShell.Commands.SetStrictModeCommand
+CommandDiscovery Information: 0 : Looking up command: Set-StrictMode
+CommandDiscovery Information: 0 : Cmdlet found: Set-StrictMode  Microsoft.PowerShell.Commands.SetStrictModeCommand
+CommandDiscovery Information: 0 : Looking up command: Set-StrictMode
+CommandDiscovery Information: 0 : Cmdlet found: Set-StrictMode  Microsoft.PowerShell.Commands.SetStrictModeCommand
+PS C:\Users\muhammad.yahya>
