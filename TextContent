@@ -16,3 +16,5 @@ At line:1 char:52
     + CategoryInfo          : ObjectNotFound: (C:\Users\muhamm...date-1.2.13.ps1:String) [Get-Command], CommandNotFoun
    dException
     + FullyQualifiedErrorId : CommandNotFoundException,Microsoft.PowerShell.Commands.GetCommandCommand
+
+Get-Content -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
