@@ -3,3 +3,4 @@ Get-ExecutionPolicy -List
 Get-Item -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" | Format-List FullName,Length,PSIsContainer,Attributes
 Get-Content -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -TotalCount 3 -ErrorAction Stop
 $ExecutionContext.SessionState.LanguageMode
+Trace-Command -Name CommandDiscovery -Expression { Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -CommandType ExternalScript -ErrorAction Continue | Format-List Name,CommandType,Definition } -FilePath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
