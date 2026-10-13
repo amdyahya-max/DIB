@@ -4,3 +4,15 @@ Get-Item -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" | Fo
 Get-Content -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -TotalCount 3 -ErrorAction Stop
 $ExecutionContext.SessionState.LanguageMode
 Trace-Command -Name CommandDiscovery -Expression { Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -CommandType ExternalScript -ErrorAction Continue | Format-List Name,CommandType,Definition } -FilePath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
+
+*********
+PS C:\Users\muhammad.yahya> Trace-Command -Name CommandDiscovery -Expression { Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -CommandType ExternalScript -ErrorAction Continue | Format-List Name,CommandType,Definition } -FilePath "$env:LOCALAPPDATA\Temp\CET-Updater-Discovery.log"
+Get-Command : The term 'C:\Users\muhammad.yahya\AppData\Local\Temp\CET-Helper-Update-1.2.13.ps1' is not recognized as
+the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was
+included, verify that the path is correct and try again.
+At line:1 char:52
++ ... xpression { Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Upda ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\muhamm...date-1.2.13.ps1:String) [Get-Command], CommandNotFoun
+   dException
+    + FullyQualifiedErrorId : CommandNotFoundException,Microsoft.PowerShell.Commands.GetCommandCommand
