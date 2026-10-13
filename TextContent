@@ -1,2 +1,5 @@
 Get-Command -Name "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -ErrorAction Stop | Format-List Name,CommandType,Definition
 Get-ExecutionPolicy -List
+Get-Item -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" | Format-List FullName,Length,PSIsContainer,Attributes
+Get-Content -LiteralPath "$env:LOCALAPPDATA\Temp\CET-Helper-Update-1.2.13.ps1" -TotalCount 3 -ErrorAction Stop
+$ExecutionContext.SessionState.LanguageMode
